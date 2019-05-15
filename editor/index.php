@@ -12,8 +12,13 @@
         <!--GUI-->
         <div id="gui-panel">
             <button class="df" id="show">Show Code</button>
-            <label for="zoom">Zoom</label>
-            <input class="df" type="number" id="zoom">
+            <select class="df" id="zoom">
+                <option value="0.5">0.5</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="8">8</option>
+            </select>
             <button class="df" id="save">Save code</button>
         </div>
 
@@ -29,18 +34,23 @@
         <script type="text/javascript" src="/js/codemirror/matchbrackets.js"></script>
         <script type="text/javascript" src="/js/codemirror/clike.js"></script>
         <script type="text/javascript" src="/js/codemirror/glsl.js"></script>
+        <script type="text/javascript" src="/js/database/database.js"></script>
         <script type="text/javascript">
             "use strict";
             $("document").ready(function() {
                 /*App work*/
-                let app = {
+                const app = {
                     jq_elem: $("#glsl-output"),
 
                     glsl: undefined,
 
                     data: {
                         fps: 0,
+
+                        shaders_dir: "/editor/shaders/",
+
                         vert_code: "attribute vec2 coords; void main() { gl_Position = vec4(coords, 0, 1); }",
+
                         frag_code: "#ifdef GL_ES\n" +
                             "precision mediump float;\n" +
                             "#endif\n" +
@@ -48,8 +58,10 @@
                             "#extension GL_OES_standard_derivatives : enable\n\n" +
                             "uniform float time;\n\n" +
                             "void main() {\n\tgl_FragColor = vec4(0.5);\n}",
+
                         uniform: {
                             time: 0,
+
                             mouse: { x: 0, y: 0 },
 
                             update: function() {
@@ -90,14 +102,22 @@
                             app.data.uniform.mouse.x = m.clientX;
                             app.data.uniform.mouse.y = m.clientY;
                         };
+
                         cm.on("change", function() {
                             app.data.frag_code = cm.getValue();
                             app.applyFragment();
                             app.applyProgram();
                         });
+
                         onresize = function() {
-                            /*TODO resize event*/
-                        }
+
+                        };
+
+                        /*hide the code before*/
+                        $("div.CodeMirror").addClass("hide");
+
+                        /*load the code*/
+                        app.loadCode(location.hash.substr(1, location.href.length));
                     },
 
                     applyVertex: function() {
@@ -118,46 +138,19 @@
                     render: function() {
                         app.data.uniform.update();
                         app.glsl.render();
+                    },
+
+                    loadCode: id => {
+                        $.ajax({ url: app.data.shaders_dir + id }).done(response => {
+                            cm.setValue(response);
+                            console.log("CODE LOAD OK");
+                        });
                     }
                 };
-
                 app.init(60);
 
-                /*Database work*/
-                let DatabaseHandler = {
-                    handler: "FileHandler.php",
-
-                    getFormDatabase: function() {
-                        return DatabaseHandler.request({
-                            action: "r",
-                            filename: location.hash
-                        });
-                    },
-
-                    pushToDatabase: function() {
-                        return DatabaseHandler.request({
-                            action: "w",
-                            filename: location.hash === undefined ? -1 : location.hash.slice(1, location.hash.length),
-                            content: cm.getValue()
-                        });
-                    },
-
-                    request: request_data => {
-                        let response = "";
-                        $.ajax({
-                            url: DatabaseHandler.handler,
-                            method: "POST",
-                            data: request_data
-                        }).done(function(r) {
-                            response = r;
-                            console.log(r);
-                        });
-                        return response;
-                    }
-                };
-
                 /*GUI work*/
-                let GUI = {
+                const GUI = {
                     show: $("#show"),
                     zoom: $("#zoom"),
                     save: $("#save"),
@@ -168,11 +161,15 @@
                         });
 
                         GUI.save.on("click", function() {
-                            DatabaseHandler.pushToDatabase();
+                            DatabaseHandler.push(app.data.shaders_dir + location.hash.slice(1, location.hash.length), cm.getValue());
+                        });
+
+                        GUI.zoom.on("change", option => {
+                            console.log(option);
+                            app.data.setZoom(option.target.value);
                         });
                     }
                 };
-
                 GUI.init();
             });
         </script>

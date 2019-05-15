@@ -1,6 +1,5 @@
 body {
     margin: 0;
-    background-color: black;
 }
 
 div#gui-panel {
@@ -24,7 +23,7 @@ input[type="number"].df {
     text-align: center;
 }
 
-button.df {
+.df {
     border: 0;
     outline: 0;
     border-radius: 5%;
@@ -35,12 +34,16 @@ button.df {
     transition: 100ms;
 }
 
-button.df:hover {
+.df:hover {
     background-color: #e5194a;
 }
 
-button.df:active {
+.df:active {
     background-color: #e5194a88;
+}
+
+select.df {
+    width: 50px;
 }
 
 /*CodeMirror extensions*/

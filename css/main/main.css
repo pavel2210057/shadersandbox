@@ -1,0 +1,55 @@
+body {
+    margin: 0;
+    transition: 1s;
+}
+
+::selection {
+    background-color: #ff9728;
+}
+
+/*Editor frame style*/
+.hide {
+    display: none;
+}
+
+#editor-frame.opened {
+    position: fixed;
+    border: none;
+    transition: 1s;
+    left: 100px;
+    top: 100px;
+    width: calc(100% - 200px);
+    height: calc(100% - 200px);
+    z-index: 1;
+}
+
+/*Library table style*/
+table {
+    margin: auto;
+    padding-top: 80px;
+    border-spacing: 50px;
+    transition: 500ms;
+}
+
+td {
+    border: 2px solid #0055ff;
+    width: 200px;
+    height: 200px;
+}
+
+td:hover {
+    border-color: #0000dd;
+}
+
+td:active {
+    border-color: #0000aa;
+}
+
+td>a>img {
+    width: 100%;
+    height: 100%;
+}
+
+caption {
+    caption-side: bottom;
+}

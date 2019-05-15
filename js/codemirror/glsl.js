@@ -15,7 +15,6 @@
 
 initCodemirror();
 
-
 /*GLSL*/
     class GLSL {
         constructor(jq_elem) {
